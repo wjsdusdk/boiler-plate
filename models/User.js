@@ -66,6 +66,9 @@ userSchema.pre("save", function (next) {
 
 // 5. 2-1) 데이터 베이스에서 요청한 이메일이 있다면 비밀번호가 같은지 확인
 
+// plainPassword와 암호화된 PW를 비교하기 위해 plainPassword를 암호화
+// 암호화된 PW는 암호화되지 않은 PW로 복구할 수는 없음
+
 userSchema.methods.comparePassword = function (plainPassword, cb) {
     bcrypt.compare(plainPassword, this.password, function (err, isMatch) {
         if (err) return cb(err);
@@ -88,6 +91,21 @@ userSchema.methods.generateToken = function (cb) {
     user.save(function (err, user) {
         if (err) return cb(err);
         cb(null, user);
+    });
+};
+
+// 6. 1) token을 decode (incode 반의어) -> 유저 ID가 나옴
+
+userSchema.statics.findByToken = function (token, cb) {
+    var user = this;
+
+    jwt.verify(token, "secretToken", function (err, decoded) {
+        // 유저 ID를 이용해 유저를 찾고 Client의 token과 DB의 token이 같은지 확인
+
+        user.findOne({ _id: decoded, token: token }, function (err, user) {
+            if (err) return cb(err);
+            cb(null, user);
+        });
     });
 };
 
