@@ -25,7 +25,7 @@ mongoose
         useUnifiedTopology: true,
         useCreateIndex: true,
         useFindAndModify: false,
-    }) // <password> 변경해야됨
+    })
     .then(() => console.log("MongoDB Connected..."))
     .catch((err) => console.log(err));
 
@@ -54,8 +54,14 @@ app.post("/api/user/register", (req, res) => {
 
 // 5. 로그인
 
+// 1) Client에서 요청한 email을 DB에서 찾기
+// 2) email이 있다면 PW가 같은지 확인
+// 3) PW가 다르다면
+// 4) PW까지 같다면 jsonwebtoken을 이용해 token 생성
+// 5) PW까지 같다면 Token 생성과
+
 app.post("/api/user/login", (req, res) => {
-    // 1) Client에서 요청한 email DB에서 찾기
+    // 5-1) Client에서 요청한 email을 DB에서 찾기
     User.findOne({ email: req.body.email }, (err, user) => {
         if (!user) {
             return res.json({
@@ -64,24 +70,29 @@ app.post("/api/user/login", (req, res) => {
             });
         }
 
-        // 2-2) DB에서 요청한 email이 있다면 PW가 같은지 확인
         user.comparePassword(req.body.password, (err, isMatch) => {
-            // (1) PW가 다르다면
+            // 5-3) PW가 다르다면
+
             if (!isMatch)
                 return res.json({
                     loginSuccess: false,
                     message: "password가 틀렸습니다.",
                 });
 
-            // (2-2) PW까지 같다면 Token 생성
+            // 5-5) PW까지 같다면 Token 생성
+
             user.generateToken((err, user) => {
                 if (err) return res.status(400).send(err); // status(400)은 에러를 의미
 
                 // token을 어디에 저장?
-                // 쿠키 vs 로컬스토리지
+                // cookie vs localstorage
                 // 어디가 제일 좋은지는 논란이 있음
-                // 지금은 쿠키에 저장
-                res.cookie("x_auth", user.token).status(200).json({ loginSuccess: true, userId: user._id });
+                // 지금은 cookie에 저장
+
+                res.cookie("x_auth", user.token).status(200).json({
+                    loginSuccess: true,
+                    userId: user._id,
+                });
             });
         });
     });
@@ -89,21 +100,23 @@ app.post("/api/user/login", (req, res) => {
 
 // 6. auth : request를 받고 cb function 하기 전에 중간에서 뭘 해주는 것
 
-// 1) Client cookie에서 Token을 가져와 복호화
-// 2) 복호화를 통해 나온 유저 ID를 이용해 DB에서 유저의 token을 찾은 후
-// 3) cookie에서 가져온 token과 같은지 확인
-// 4) 일치한다면 Authentication True, 불일치한다면 False
-// 5) 일치한다면 해당 유저의 선별된 정보들을 가져옴
+// 1) Client cookie에서 Token을 가져와서
+// 2) 복호화를 통해 나온 유저 ID를 이용해 DB의 token과 cookie의 token이 같은지 확인
+// 3) 불일치한다면 Authentication False
+// 4) 일치한다면 Authentication True
+// 5) 해당 유저의 선별된 정보들을 가져옴
+
+// 6-5) middleware을 통과해 이 단계까지 왔다는 것은 Authentication이 True
 
 app.get("/api/user/users/auth", auth, (req, res) => {
-    // 3) middleware을 통과해 이 단계까지 왔다는 것은 Authentication이 True
-
     res.status(200).json({
         _id: req.user._id,
         isAdmin: req.user.role === 0 ? false : true,
+
         // role이 0이면 false, 아니면 true
         // role 1 어드민    role 2 특정 부서 어드민
         // role 0 일반유저  role 0이 아니면 관리자
+
         isAuth: true,
         email: req.user.email,
         name: req.user.name,
@@ -119,6 +132,7 @@ app.get("/api/user/users/auth", auth, (req, res) => {
 // 2) 로그아웃하려는 유저를 DB에서 찾아 그 유저의 token 삭제
 
 // 로그인된 상태이기 때문에 auth 사용
+
 app.get("/api/users/logout", auth, (req, res) => {
     // ID를 이용해 유저를 찾아서 정보 업데이트 (token 삭제)
     User.findOneAndUpdate({ _id: req.user._id }, { token: "" }, (err, user) => {
