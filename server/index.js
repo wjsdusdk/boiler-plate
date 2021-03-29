@@ -14,9 +14,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // application/json 타입으로 된 데이터를 분석해서 Client에서 Server로 전달
 app.use(bodyParser.json());
-app.use(cookieParser()); // 5. 2-2) (2-2)
+app.use(cookieParser());
 
 // 1. MongoDB 연결하기
+
+// 연결이 잘 됬으면 "MongoDB Connected...", 안됬으면 err
 
 const mongoose = require("mongoose");
 mongoose
@@ -29,10 +31,14 @@ mongoose
     .then(() => console.log("MongoDB Connected..."))
     .catch((err) => console.log(err));
 
-// 연결이 잘 됬으면 "MongoDB Connected...", 안됬으면 err
-
 app.get("/", (req, res) => {
     res.send("안녕 꺼벙아! 복실아!");
+});
+
+// [Frontend] axios test를 위해 간단하게 request를 받는 Route 만듬
+
+app.get("/api/hello", (req, res) => {
+    res.send("안녕하세요 ~");
 });
 
 // 3. 회원가입을 위한 Route 만들기
