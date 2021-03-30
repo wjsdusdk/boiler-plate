@@ -66,7 +66,7 @@ app.post("/api/user/register", (req, res) => {
 // 4) PW까지 같다면 jsonwebtoken을 이용해 token 생성
 // 5) PW까지 같다면 Token 생성과
 
-app.post("/api/user/login", (req, res) => {
+app.post("/api/users/login", (req, res) => {
     // 5-1) Client에서 요청한 email을 DB에서 찾기
     User.findOne({ email: req.body.email }, (err, user) => {
         if (!user) {
