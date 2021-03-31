@@ -31,7 +31,7 @@ function RegisterPage(props) {
         setConfirmPassword(event.currentTarget.value);
     };
 
-    // 3. DB 가져오기 (server 연결)
+    // 3. 회원가입 - DB 가져오기 (server 연결)
 
     const onSubmitHandler = (event) => {
         event.preventDefault(); // a태그 막는거랑 비슷한거

@@ -23,7 +23,7 @@ function LoginPage(props) {
     // console.log("Email", Email);
     // console.log("Password", Password);
 
-    // 3. DB 가져오기 (server 연결)
+    // 3. 로그인 - DB 가져오기 (server 연결)
 
     const onSubmitHandler = (event) => {
         event.preventDefault(); // a태그 막는거랑 비슷한거
