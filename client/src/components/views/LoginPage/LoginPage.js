@@ -37,11 +37,11 @@ function LoginPage(props) {
             if (response.payload.loginSuccess) {
                 props.history.push("/");
             } else {
-                alert("login fail");
+                alert("Failed to login");
             }
 
             // login 성공한다면 LandingPage로 이동
-            // login 실패한다면 login fail 팝업
+            // login 실패한다면 Failed to login 팝업
         });
     };
 

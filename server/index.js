@@ -43,7 +43,7 @@ app.get("/api/hello", (req, res) => {
 
 // 3. 회원가입을 위한 Route 만들기
 
-app.post("/api/user/register", (req, res) => {
+app.post("/api/users/register", (req, res) => {
     // 1) body-parser을 이용해 회원가입에 필요한 정보들을 Client에서 DB로 전달
     const user = new User(req.body); // req.body에 json 형식의 ID, PW 등 데이터 있음
 
