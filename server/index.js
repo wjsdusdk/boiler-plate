@@ -114,7 +114,7 @@ app.post("/api/users/login", (req, res) => {
 
 // 6-5) middleware을 통과해 이 단계까지 왔다는 것은 Authentication이 True
 
-app.get("/api/user/users/auth", auth, (req, res) => {
+app.get("/api/users/auth", auth, (req, res) => {
     res.status(200).json({
         _id: req.user._id,
         isAdmin: req.user.role === 0 ? false : true,
